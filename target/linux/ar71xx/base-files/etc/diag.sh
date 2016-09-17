@@ -304,6 +304,9 @@ get_status_led() {
 	tl-wa860re)
 		status_led="tp-link:green:power"
 		;;
+	tl-wr802n)
+		status_led="tp-link:blue:system"
+		;;
 	tl-mr3220 | \
 	tl-mr3220-v2 | \
 	tl-mr3420 | \

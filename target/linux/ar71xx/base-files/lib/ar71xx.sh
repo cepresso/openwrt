@@ -175,6 +175,9 @@ tplink_board_detect() {
 	"080100"*)
 		model="TP-Link TL-WA801N/ND"
 		;;
+	"080200"*)
+                model="TP-Link TL-WR802N"
+                ;;
 	"083000"*)
 		model="TP-Link TL-WA830RE"
 
@@ -908,6 +911,9 @@ ar71xx_board_detect() {
 	*"TL-WR741ND v4")
 		name="tl-wr741nd-v4"
 		;;
+	*"TL-WR802N")
+                name="tl-wr802n"
+                ;;
 	*"TL-WR841N v1")
 		name="tl-wr841n-v1"
 		;;

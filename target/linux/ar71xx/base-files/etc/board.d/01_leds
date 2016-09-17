@@ -594,6 +594,10 @@ tl-wr741nd-v4)
 	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:green:wlan" "phy0tpt"
 	;;
 
+tl-wr802n)
+	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:blue:system" "phy0tpt"
+	;;
+
 tl-wr841n-v8 | \
 tl-wr941nd-v5)
 	ucidef_set_led_netdev "wan" "WAN" "tp-link:green:wan" "eth0"

@@ -1,0 +1,198 @@
+diff --git a/target/linux/ar71xx/base-files/etc/board.d/01_leds b/target/linux/ar71xx/base-files/etc/board.d/01_leds
+index 151eac2..7825fa6 100755
+--- a/target/linux/ar71xx/base-files/etc/board.d/01_leds
++++ b/target/linux/ar71xx/base-files/etc/board.d/01_leds
+@@ -562,6 +562,10 @@ tl-wr741nd-v4)
+ 	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:green:wlan" "phy0tpt"
+ 	;;
+
++tl-wr802n)
++	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:blue:system" "phy0tpt"
++	;;
++
+ tl-wr841n-v8 | \
+ tl-wr941nd-v5)
+ 	ucidef_set_led_netdev "wan" "WAN" "tp-link:green:wan" "eth0"
+diff --git a/target/linux/ar71xx/base-files/etc/board.d/02_network b/target/linux/ar71xx/base-files/etc/board.d/02_network
+index 51a1b64..d54ec79 100755
+--- a/target/linux/ar71xx/base-files/etc/board.d/02_network
++++ b/target/linux/ar71xx/base-files/etc/board.d/02_network
+@@ -359,6 +359,7 @@ tl-wa901nd |\
+ tl-wa901nd-v2 |\
+ tl-wa901nd-v3 |\
+ tl-wr703n |\
++tl-wr802n |\
+ tube2h |\
+ wndap360 |\
+ mynet-rext |\
+diff --git a/target/linux/ar71xx/base-files/etc/diag.sh b/target/linux/ar71xx/base-files/etc/diag.sh
+index c0e73ad..8cdaae0 100644
+--- a/target/linux/ar71xx/base-files/etc/diag.sh
++++ b/target/linux/ar71xx/base-files/etc/diag.sh
+@@ -286,6 +286,9 @@ get_status_led() {
+ 	tl-wa860re)
+ 		status_led="tp-link:green:power"
+ 		;;
++	tl-wr802n)
++		status_led="tp-link:blue:system"
++		;;
+ 	tl-mr3220 | \
+ 	tl-mr3220-v2 | \
+ 	tl-mr3420 | \
+diff --git a/target/linux/ar71xx/base-files/lib/ar71xx.sh b/target/linux/ar71xx/base-files/lib/ar71xx.sh
+index 34d5741..d63067a 100755
+--- a/target/linux/ar71xx/base-files/lib/ar71xx.sh
++++ b/target/linux/ar71xx/base-files/lib/ar71xx.sh
+@@ -162,6 +162,9 @@ tplink_board_detect() {
+ 	"080100"*)
+ 		model="TP-Link TL-WA801N/ND"
+ 		;;
++	"080200"*)
++                model="TP-Link TL-WR802N"
++                ;;
+ 	"083000"*)
+ 		model="TP-Link TL-WA830RE"
+
+@@ -854,6 +857,9 @@ ar71xx_board_detect() {
+ 	*"TL-WR741ND v4")
+ 		name="tl-wr741nd-v4"
+ 		;;
++	*"TL-WR802N")
++                name="tl-wr802n"
++                ;;
+ 	*"TL-WR841N v1")
+ 		name="tl-wr841n-v1"
+ 		;;
+diff --git a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
+index 0276a69..1b43261 100755
+--- a/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
++++ b/target/linux/ar71xx/base-files/lib/upgrade/platform.sh
+@@ -366,6 +366,7 @@ platform_check_image() {
+ 	tl-wr720n-v3 | \
+ 	tl-wr741nd | \
+ 	tl-wr741nd-v4 | \
++	tl-wr802n | \
+ 	tl-wr810n | \
+ 	tl-wr841n-v1 | \
+ 	tl-wa830re-v2 | \
+diff --git a/target/linux/ar71xx/config-4.1 b/target/linux/ar71xx/config-4.4
+index fe1dd68..6d35b4f 100644
+--- a/target/linux/ar71xx/config-4.4
++++ b/target/linux/ar71xx/config-4.4
+@@ -150,6 +150,7 @@ CONFIG_ATH79_MACH_TL_WR703N=y
+ CONFIG_ATH79_MACH_TL_WR720N_V3=y
+ CONFIG_ATH79_MACH_TL_WR741ND=y
+ CONFIG_ATH79_MACH_TL_WR741ND_V4=y
++CONFIG_ATH79_MACH_TL_WR802N=y
+ CONFIG_ATH79_MACH_TL_WR810N=y
+ CONFIG_ATH79_MACH_TL_WR841N_V1=y
+ CONFIG_ATH79_MACH_TL_WR841N_V8=y
+diff --git a/target/linux/ar71xx/files/arch/mips/ath79/Kconfig.openwrt b/target/linux/ar71xx/files/arch/mips/ath79/Kconfig.openwrt
+index da26414..5ad9af6 100644
+--- a/target/linux/ar71xx/files/arch/mips/ath79/Kconfig.openwrt
++++ b/target/linux/ar71xx/files/arch/mips/ath79/Kconfig.openwrt
+@@ -1202,6 +1202,15 @@ config ATH79_MACH_TL_WR741ND_V4
+ 	select ATH79_DEV_USB
+ 	select ATH79_DEV_WMAC
+
++config ATH79_MACH_TL_WR802N
++       bool "TP-LINK TL-WR802N support"
++       select SOC_QCA953X
++       select ATH79_DEV_ETH
++       select ATH79_DEV_GPIO_BUTTONS
++       select ATH79_DEV_LEDS_GPIO
++       select ATH79_DEV_M25P80
++       select ATH79_DEV_WMAC
++
+ config ATH79_MACH_TL_WR841N_V1
+ 	bool "TP-LINK TL-WR841N v1 support"
+ 	select SOC_AR71XX
+diff --git a/target/linux/ar71xx/files/arch/mips/ath79/Makefile b/target/linux/ar71xx/files/arch/mips/ath79/Makefile
+index 991f6f2..75c0a4f 100644
+--- a/target/linux/ar71xx/files/arch/mips/ath79/Makefile
++++ b/target/linux/ar71xx/files/arch/mips/ath79/Makefile
+@@ -151,6 +151,7 @@ obj-$(CONFIG_ATH79_MACH_TL_WDR4300)     += mach-tl-wdr4300.o
+ obj-$(CONFIG_ATH79_MACH_TL_WDR6500_V2)  += mach-tl-wdr6500-v2.o
+ obj-$(CONFIG_ATH79_MACH_TL_WR741ND)	+= mach-tl-wr741nd.o
+ obj-$(CONFIG_ATH79_MACH_TL_WR741ND_V4)	+= mach-tl-wr741nd-v4.o
++obj-$(CONFIG_ATH79_MACH_TL_WR802N)  	+= mach-tl-wr802n.o
+ obj-$(CONFIG_ATH79_MACH_TL_WR810N)	+= mach-tl-wr810n.o
+ obj-$(CONFIG_ATH79_MACH_TL_WR841N_V1)	+= mach-tl-wr841n.o
+ obj-$(CONFIG_ATH79_MACH_TL_WR841N_V8)	+= mach-tl-wr841n-v8.o
+@@ -178,9 +179,9 @@ obj-$(CONFIG_ATH79_MACH_WNR2000_V4)	+= mach-wnr2000-v4.o
+ obj-$(CONFIG_ATH79_MACH_WP543)		+= mach-wp543.o
+ obj-$(CONFIG_ATH79_MACH_WPE72)		+= mach-wpe72.o
+ obj-$(CONFIG_ATH79_MACH_WPJ342)	+= mach-wpj342.o
+-obj-$(CONFIG_ATH79_MACH_WPJ344)	+= mach-wpj344.o
+-obj-$(CONFIG_ATH79_MACH_WPJ531)	+= mach-wpj531.o
+-obj-$(CONFIG_ATH79_MACH_WPJ558)	+= mach-wpj558.o
++obj-$(CONFIG_ATH79_MACH_WPJ344)		+= mach-wpj344.o
++obj-$(CONFIG_ATH79_MACH_WPJ531)		+= mach-wpj531.o
++obj-$(CONFIG_ATH79_MACH_WPJ558)		+= mach-wpj558.o
+ obj-$(CONFIG_ATH79_MACH_WRT160NL)	+= mach-wrt160nl.o
+ obj-$(CONFIG_ATH79_MACH_WRT400N)	+= mach-wrt400n.o
+ obj-$(CONFIG_ATH79_MACH_WRTNODE2Q)	+= mach-wrtnode2q.o
+diff --git a/target/linux/ar71xx/files/arch/mips/ath79/machtypes.h b/target/linux/ar71xx/files/arch/mips/ath79/machtypes.h
+index a170e8d..276fbb9 100644
+--- a/target/linux/ar71xx/files/arch/mips/ath79/machtypes.h
++++ b/target/linux/ar71xx/files/arch/mips/ath79/machtypes.h
+@@ -184,6 +184,7 @@ enum ath79_mach_type {
+ 	ATH79_MACH_TL_WR720N_V3,	/* TP-LINK TL-WR720N v3/v4 */
+ 	ATH79_MACH_TL_WR741ND,		/* TP-LINK TL-WR741ND */
+ 	ATH79_MACH_TL_WR741ND_V4,	/* TP-LINK TL-WR741ND v4 */
++	ATH79_MACH_TL_WR802N,		/* TP-LINK TL-WR802N */
+ 	ATH79_MACH_TL_WR810N,		/* TP-LINK TL-WR810N */
+ 	ATH79_MACH_TL_WR841N_V1,	/* TP-LINK TL-WR841N v1 */
+ 	ATH79_MACH_TL_WR841N_V7,	/* TP-LINK TL-WR841N/ND v7 */
+diff --git a/target/linux/ar71xx/generic/profiles/tp-link.mk b/target/linux/ar71xx/generic/profiles/tp-link.mk
+index 2875290..ced7ba8 100644
+--- a/target/linux/ar71xx/generic/profiles/tp-link.mk
++++ b/target/linux/ar71xx/generic/profiles/tp-link.mk
+@@ -331,6 +331,15 @@ define Profile/TLWR743/Description
+ endef
+ $(eval $(call Profile,TLWR743))
+
++define Profile/TLWR802
++        NAME:=TP-LINK TL-WR802N
++        PACKAGES:=
++endef
++
++define Profile/TLWR802/Description
++        Package set optimized for the TP-LINK TL-WR802N.
++endef
++$(eval $(call Profile,TLWR802))
+
+ define Profile/TLWR841
+ 	NAME:=TP-LINK TL-WR841N/ND
+diff --git a/target/linux/ar71xx/image/Makefile b/target/linux/ar71xx/image/tp-link.mk
+index 6483284..aac1fb3 100644
+--- a/target/linux/ar71xx/image/tp-link.mk
++++ b/target/linux/ar71xx/image/tp-link.mk
+@@ -759,6 +759,15 @@ define Device/tl-wr743nd-v2
+ endef
+ TARGET_DEVICES += tl-wr740n-v1 tl-wr740n-v3 tl-wr740n-v4 tl-wr740n-v5 tl-wr740n-v6 tl-wr741nd-v1 tl-wr741nd-v2 tl-wr741nd-v4 tl-wr741nd-v5 tl-wr743nd-v1 tl-wr743nd-v2
+
++define Device/tl-wr802n
++    $(Device/tplink-4mlzma)
++    BOARDNAME := TL-WR802N
++    DEVICE_PROFILE := TLWR802
++    TPLINK_HWID := 0x08020001
++    TPLINK_HWREV := 1
++endef
++TARGET_DEVICES += tl-wr802n
++
+ define Device/tl-wr841-v1.5
+     $(Device/tplink-4m)
+     BOARDNAME := TL-WR841N-v1.5
+diff --git a/target/linux/ar71xx/mikrotik/config-default b/target/linux/ar71xx/mikrotik/config-default
+index 88ac6cf..eb5657c 100644
+--- a/target/linux/ar71xx/mikrotik/config-default
++++ b/target/linux/ar71xx/mikrotik/config-default
+@@ -97,6 +97,7 @@ CONFIG_ATH79_MACH_RBSXTLITE=y
+ # CONFIG_ATH79_MACH_TL_WR720N_V3 is not set
+ # CONFIG_ATH79_MACH_TL_WR741ND is not set
+ # CONFIG_ATH79_MACH_TL_WR741ND_V4 is not set
++# CONFIG_ATH79_MACH_TL_WR802N is not set
+ # CONFIG_ATH79_MACH_TL_WR841N_V1 is not set
+ # CONFIG_ATH79_MACH_TL_WR841N_V8 is not set
+ # CONFIG_ATH79_MACH_TL_WR841N_V9 is not set
